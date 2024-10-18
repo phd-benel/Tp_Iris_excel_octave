@@ -1,0 +1,124 @@
+Sub KNN_Accuracy()
+
+    Dim dataRange As Range
+    Dim trainRange As Range
+    Dim testRange As Range
+    Dim trainCount As Long, testCount As Long
+    Dim i As Long, j As Long
+    Dim k As Integer
+    Dim distances() As Double
+    Dim labels() As String
+    Dim sortedDistances() As Double
+    Dim sortedLabels() As String
+    Dim tempDistance As Double
+    Dim tempLabel As String
+    Dim kNeighbors() As String
+    Dim setosaCount As Integer, versicolorCount As Integer, virginicaCount As Integer
+    Dim correctPredictions As Integer
+    Dim accuracy As Double
+    Dim trainRowStart As Long, trainRowEnd As Long
+    Dim testRowStart As Long, testRowEnd As Long
+    Dim lastRow As Long
+    
+    ' Définir la plage de données (dataset Iris)
+    Set dataRange = Range("A2:E151")
+    
+    ' Nombre total de lignes de données (150 lignes dans cet exemple)
+    lastRow = dataRange.Rows.Count
+    
+    ' Diviser en ensemble d'entraînement et de test (80 % entraînement, 20 % test)
+    trainCount = Int(lastRow * 0.8) ' 80 % pour l'entraînement
+    testCount = lastRow - trainCount ' 20 % pour le test
+    
+    ' Plage d'entraînement (80 % des données)
+    trainRowStart = 2
+    trainRowEnd = trainRowStart + trainCount - 1
+    Set trainRange = Range("A" & trainRowStart & ":E" & trainRowEnd)
+    
+    ' Plage de test (20 % des données)
+    testRowStart = trainRowEnd + 1
+    testRowEnd = testRowStart + testCount - 1
+    Set testRange = Range("A" & testRowStart & ":E" & testRowEnd)
+    
+    ' Demander la valeur de k à l'utilisateur
+    k = InputBox("Entrez le nombre de voisins k pour l'algorithme k-NN :", "Valeur de k", 3)
+    
+    ' Boucle sur les données de test pour évaluer le modèle
+    correctPredictions = 0
+    For i = testRowStart To testRowEnd
+    
+        ' Initialiser le tableau des distances et des labels pour l'échantillon de test courant
+        ReDim distances(1 To trainCount)
+        ReDim labels(1 To trainCount)
+        
+        ' Calculer les distances entre l'échantillon de test et chaque échantillon de l'ensemble d'entraînement
+        For j = trainRowStart To trainRowEnd
+            distances(j - trainRowStart + 1) = Sqr((Cells(i, 1).Value - Cells(j, 1).Value) ^ 2 + _
+                                                   (Cells(i, 2).Value - Cells(j, 2).Value) ^ 2 + _
+                                                   (Cells(i, 3).Value - Cells(j, 3).Value) ^ 2 + _
+                                                   (Cells(i, 4).Value - Cells(j, 4).Value) ^ 2)
+            labels(j - trainRowStart + 1) = Cells(j, 5).Value ' Label de classe (colonne E)
+        Next j
+        
+        ' Trier les distances et obtenir les k voisins les plus proches
+        ReDim sortedDistances(1 To trainCount)
+        ReDim sortedLabels(1 To trainCount)
+        
+        For j = 1 To trainCount
+            sortedDistances(j) = distances(j)
+            sortedLabels(j) = labels(j)
+        Next j
+        
+        ' Trier les distances avec Bubble Sort (ou tout autre tri)
+        For j = 1 To trainCount - 1
+            For k2 = j + 1 To trainCount
+                If sortedDistances(j) > sortedDistances(k2) Then
+                    ' Échanger les distances
+                    tempDistance = sortedDistances(j)
+                    sortedDistances(j) = sortedDistances(k2)
+                    sortedDistances(k2) = tempDistance
+                    ' Échanger les labels correspondants
+                    tempLabel = sortedLabels(j)
+                    sortedLabels(j) = sortedLabels(k2)
+                    sortedLabels(k2) = tempLabel
+                End If
+            Next k2
+        Next j
+        
+        ' Compter les classes parmi les k voisins les plus proches
+        setosaCount = 0
+        versicolorCount = 0
+        virginicaCount = 0
+        
+        For j = 1 To k
+            If sortedLabels(j) = "Setosa" Then
+                setosaCount = setosaCount + 1
+            ElseIf sortedLabels(j) = "Versicolor" Then
+                versicolorCount = versicolorCount + 1
+            ElseIf sortedLabels(j) = "Virginica" Then
+                virginicaCount = virginicaCount + 1
+            End If
+        Next j
+        
+        ' Prédire la classe en fonction de la classe majoritaire
+        Dim predictedClass As String
+        If setosaCount > versicolorCount And setosaCount > virginicaCount Then
+            predictedClass = "Setosa"
+        ElseIf versicolorCount > setosaCount And versicolorCount > virginicaCount Then
+            predictedClass = "Versicolor"
+        Else
+            predictedClass = "Virginica"
+        End If
+        
+        ' Comparer avec la classe réelle (colonne E de la ligne de test)
+        If predictedClass = Cells(i, 5).Value Then
+            correctPredictions = correctPredictions + 1
+        End If
+        
+    Next i
+    
+    ' Calculer l'accuracy
+    accuracy = correctPredictions / testCount * 100
+    MsgBox "Précision (accuracy) du modèle k-NN : " & Round(accuracy, 2) & "%"
+    
+End Sub
