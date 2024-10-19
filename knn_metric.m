@@ -81,19 +81,3 @@ f1_score = f1_score / length(unique_labels);
 fprintf('Precision: %.2f\n', precision);
 fprintf('Recall: %.2f\n', recall);
 fprintf('F1-Score: %.2f\n', f1_score);
-
-% Visualisation des données : Petal Length vs Petal Width
-figure;
-scatter(trainData(:, 3), trainData(:, 4), 50, trainData(:, 5), 'filled');
-title('Petal Length vs Petal Width (Training Data)');
-xlabel('Petal Length');
-ylabel('Petal Width');
-grid on;
-
-% Visualisation des données : Sepal Length vs Sepal Width
-figure;
-scatter(trainData(:, 1), trainData(:, 2), 50, trainData(:, 5), 'filled');
-title('Sepal Length vs Sepal Width (Training Data)');
-xlabel('Sepal Length');
-ylabel('Sepal Width');
-grid on;
