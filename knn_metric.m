@@ -1,6 +1,6 @@
 % Charger les données Iris depuis un fichier CSV
 % Assurez-vous que le fichier 'iris.csv' est dans le répertoire de travail d'Octave
-data = csvread('iris.csv');
+data =dlmread('C:/Users/ASUS/Desktop/iris_octave.csv', '');
 
 % Séparation des données en 80% pour l'entraînement et 20% pour le test
 num_rows = size(data, 1);
